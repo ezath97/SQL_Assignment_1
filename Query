@@ -1,0 +1,206 @@
+# Create Database
+mysql> create database Sales_office;
+
+***************************************************************************************************************************
+
+
+
+# Create Table SalesPeople 
+
+mysql> create table SalesPeople (
+    -> Snum int, Sname varchar(225), City varchar(225), Comm int);
+
+mysql> insert into Salespeople
+    -> values (1001,'Peel','London',12),(1002,'Serres','Sanjose',13),(1004,'Motika','London',11),(1007,'Rifkin','Barcelona',15),(1003,'Axelrod','Newyork',10);
+
+mysql> alter table salespeople
+    -> modify column Snum int not null,
+    -> modify column Sname varchar(225) not null;
+
+mysql> alter table salespeople
+    -> add CONSTRAINT PK_SalesPeople PRIMARY KEY (Snum,Sname);
+
+mysql> select * from salespeople;
++------+---------+-----------+------+
+| Snum | Sname   | City      | Comm |
++------+---------+-----------+------+
+| 1001 | Peel    | London    |   12 |
+| 1002 | Serres  | Sanjose   |   13 |
+| 1004 | Motika  | London    |   11 |
+| 1007 | Rifkin  | Barcelona |   15 |
+| 1003 | Axelrod | Newyork   |   10 |
++------+---------+-----------+------+
+5 rows in set (0.00 sec)
+
+
+***************************************************************************************************************************
+
+
+# Create Table Customers 
+
+mysql>  create table Customers (
+    -> Cnum int, Cname varchar(225), City varchar(225), Snum int);
+
+mysql> insert into Customers
+    -> values (2001,'Hoffman','London',1001),(2002,'Giovanni','Rome',1003),(2003,'Liu','Sanjose',1002),(2004,'Grass','Berlin',1002),(2006,'Clemens','London',1001),(2008,'Cisneros','Sanjose',1007),(2007,'Pereira','Rome',1004);
+
+mysql> alter table customers
+    -> modify column City varchar(225) not null,
+    -> add primary key (Cnum);
+
+mysql> alter table customers
+    -> ADD FOREIGN KEY (Snum) REFERENCES salespeople(Snum);
+
+mysql> select * from customers;
++------+----------+---------+------+
+| Cnum | Cname    | City    | Snum |
++------+----------+---------+------+
+| 2001 | Hoffman  | London  | 1001 |
+| 2002 | Giovanni | Rome    | 1003 |
+| 2003 | Liu      | Sanjose | 1002 |
+| 2004 | Grass    | Berlin  | 1002 |
+| 2006 | Clemens  | London  | 1001 |
+| 2008 | Cisneros | Sanjose | 1007 |
+| 2007 | Pereira  | Rome    | 1004 |
++------+----------+---------+------+
+7 rows in set (0.00 sec)
+
+
+
+***************************************************************************************************************************
+
+
+# Create table Orders
+
+mysql>  create table Orders (
+    -> Onum int, Amt double, Odate date, Cnum int, Snum int);
+
+mysql> insert into Orders
+    -> values (3001, 18.69,str_to_date('3-10-1990','%d-%m-%Y'), 2008, 1007);
+
+mysql> insert into Orders
+    -> values (3003, 767.19,str_to_date('3-10-1990','%d-%m-%Y'), 2001, 1001),
+    -> (3002, 1990.10,str_to_date('3-10-1990','%d-%m-%Y'), 2007, 1004),
+    -> (3005, 5160.45,str_to_date('3-10-1990','%d-%m-%Y'), 2003, 1002),
+    -> (3006, 1098.16,str_to_date('3-10-1990','%d-%m-%Y'), 2008, 1007),
+    -> (3009, 1713.24,str_to_date('4-10-1990','%d-%m-%Y'), 2002, 1003),
+    -> (3007, 75.75,str_to_date('4-10-1990','%d-%m-%Y'), 2004, 1002),
+    -> (3008, 4273.00,str_to_date('5-10-1990','%d-%m-%Y'), 2006, 1001),
+    -> (3010, 1309.95,str_to_date('6-10-1990','%d-%m-%Y'), 2004, 1002),
+    -> (3011, 9891.88,str_to_date('6-10-1990','%d-%m-%Y'), 2006, 1001);
+
+mysql> alter table orders
+    -> ADD PRIMARY KEY (Onum),
+    -> ADD FOREIGN KEY (Snum) REFERENCES salespeople(Snum),
+    -> ADD FOREIGN KEY (Cnum) REFERENCES customers(Cnum);
+
+mysql> select * from orders;
++------+---------+------------+------+------+
+| Onum | Amt     | Odate      | Cnum | Snum |
++------+---------+------------+------+------+
+| 3001 |   18.69 | 1990-10-03 | 2008 | 1007 |
+| 3003 |  767.19 | 1990-10-03 | 2001 | 1001 |
+| 3002 |  1990.1 | 1990-10-03 | 2007 | 1004 |
+| 3005 | 5160.45 | 1990-10-03 | 2003 | 1002 |
+| 3006 | 1098.16 | 1990-10-03 | 2008 | 1007 |
+| 3009 | 1713.24 | 1990-10-04 | 2002 | 1003 |
+| 3007 |   75.75 | 1990-10-04 | 2004 | 1002 |
+| 3008 |    4273 | 1990-10-05 | 2006 | 1001 |
+| 3010 | 1309.95 | 1990-10-06 | 2004 | 1002 |
+| 3011 | 9891.88 | 1990-10-06 | 2006 | 1001 |
++------+---------+------------+------+------+
+10 rows in set (0.00 sec)
+
+
+***************************************************************************************************************************
+
+
+
+# Q1. Count the number of Salesperson whose name begin with ‘a’/’A’.
+
+mysql> Select count(*) as Begin_with_A from salespeople where Sname LIKE 'A%';
++--------------+
+| Begin_with_A |
++--------------+
+|            1 |
++--------------+
+1 row in set (0.01 sec)
+
+***************************************************************************************************************************
+
+# Q2. Display all the Salesperson whose all orders worth is more than Rs. 2000
+
+mysql> select Sname from salespeople where Snum in (select Snum from orders where amt > 2000);
++--------+
+| Sname  |
++--------+
+| Peel   |
+| Serres |
++--------+
+2 rows in set (0.00 sec)
+
+***************************************************************************************************************************
+
+
+# Q3.Count the number of Salesperson belonging to Newyork.
+
+mysql> select count(*) as BelongsTo_Newyork from salespeople where city='Newyork';
++-------------------+
+| BelongsTo_Newyork |
++-------------------+
+|                 1 |
++-------------------+
+1 row in set (0.00 sec)
+
+
+***************************************************************************************************************************
+
+
+# Q4.Display the number of Salespeople belonging to London and belonging to Paris.
+
+mysql> select City,count(*) from salespeople group by City Having city='London'or city='Paris';
++--------+----------+
+| City   | count(*) |
++--------+----------+
+| London |        2 |
++--------+----------+
+1 row in set (0.00 sec)
+
+
+***************************************************************************************************************************
+
+
+# Q5.Display the number of orders taken by each Salesperson and their date of orders.
+
+mysql> SELECT p.Sname,count(*)as No_Orders FROM orders o, salespeople p WHERE p.Snum=o.Snum GROUP BY p.Sname;
++---------+-----------+
+| Sname   | No_Orders |
++---------+-----------+
+| Peel    |         3 |
+| Serres  |         3 |
+| Axelrod |         1 |
+| Motika  |         1 |
+| Rifkin  |         2 |
++---------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT p.Sname,o.odate as Date_of_Orders FROM orders o, salespeople p WHERE p.Snum=o.Snum;
++---------+----------------+
+| Sname   | Date_of_Orders |
++---------+----------------+
+| Peel    | 1990-10-03     |
+| Peel    | 1990-10-05     |
+| Peel    | 1990-10-06     |
+| Serres  | 1990-10-03     |
+| Serres  | 1990-10-04     |
+| Serres  | 1990-10-06     |
+| Axelrod | 1990-10-04     |
+| Motika  | 1990-10-03     |
+| Rifkin  | 1990-10-03     |
+| Rifkin  | 1990-10-03     |
++---------+----------------+
+10 rows in set (0.00 sec)
+
+***************************************************************************************************************************
+
+
